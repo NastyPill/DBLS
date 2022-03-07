@@ -5,6 +5,9 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.websocket.WebSocketService;
 
 import java.net.ConnectException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public abstract class WebSocketBlockchainSubscriber<T> implements BlockchainSubscriber<T>{
 
@@ -13,21 +16,24 @@ public abstract class WebSocketBlockchainSubscriber<T> implements BlockchainSubs
 
     private WebSocketService webSocketService;
 
-    public WebSocketBlockchainSubscriber() {
+    public WebSocketBlockchainSubscriber() throws ConnectException {
         if(web3 == null) {
             this.webSocketService = new WebSocketService("ws://localhost:9999", true);
-            try {
-                webSocketService.connect();
-            } catch (ConnectException e) {
-                e.printStackTrace();
-            }
+            webSocketService.connect();
             this.web3 = Web3j.build(webSocketService);
         }
     }
 
     @Override
     public void onStop() {
-        subscription.dispose();
-        webSocketService.close();
+        if(subscription != null)
+            subscription.dispose();
+        if(webSocketService != null)
+            webSocketService.close();
+    }
+
+    @Override
+    public void testAccesibility() throws ExecutionException, InterruptedException, TimeoutException {
+        web3.ethBlockNumber().sendAsync().get(5, TimeUnit.SECONDS).getBlockNumber();
     }
 }

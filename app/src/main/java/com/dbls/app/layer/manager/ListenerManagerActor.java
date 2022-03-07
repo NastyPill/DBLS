@@ -9,10 +9,13 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import com.dbls.app.layer.ListenerActor;
 import com.dbls.app.layer.message.Message;
+import com.dbls.app.layer.message.UpFromRestartMessage;
 
 public class ListenerManagerActor extends AbstractBehavior<Message> {
 
     private ActorRef<Message> listener;
+
+    private ActorRef<Message> currentDataProcessor;
 
     public static Behavior<Message> create() {
         return Behaviors.setup(ListenerManagerActor::new);
@@ -30,14 +33,23 @@ public class ListenerManagerActor extends AbstractBehavior<Message> {
     @Override
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
-                .onMessage(ListenerActor.DataProcessorInfoMessage.class, message -> notifyAllListenersAboutDataProcessor(message))
+                .onMessage(DataProcessorInfoMessage.class, this::notifyAllListenersAboutDataProcessor)
+                .onMessage(UpFromRestartMessage.class, this::onUpFromRestartMessage)
                 .onSignal(PostStop.class, signal -> postStop())
                 .build();
     }
 
-    private Behavior<Message> notifyAllListenersAboutDataProcessor(ListenerActor.DataProcessorInfoMessage message) {
+    private Behavior<Message> notifyAllListenersAboutDataProcessor(DataProcessorInfoMessage message) {
         getContext().getLog().info("Get DataProcessorInfoMessage");
+        this.currentDataProcessor = message.getDataProcessor();
         listener.tell(message);
+        return this;
+    }
+
+    private Behavior<Message> onUpFromRestartMessage(UpFromRestartMessage message) {
+        if(currentDataProcessor != null) {
+            message.getAuthor().tell(new DataProcessorInfoMessage(currentDataProcessor));
+        }
         return this;
     }
 

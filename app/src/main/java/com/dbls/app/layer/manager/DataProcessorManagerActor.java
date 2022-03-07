@@ -43,19 +43,13 @@ public class DataProcessorManagerActor extends AbstractBehavior<Message> {
     @Override
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
-                .onMessage(ListenerManagerInfoMessage.class, message -> onListenerManagerInfoMessage(message))
+                .onMessage(ListenerManagerInfoMessage.class, this::onListenerManagerInfoMessage)
                 .onSignal(PostStop.class, signal -> onPostStop())
                 .build();
     }
 
     private void tellAboutDataProcessor() {
-        listenerManager
-                .tell(
-                        ListenerActor.DataProcessorInfoMessage
-                                .builder()
-                                .dataProcessor(dataProcessor)
-                                .build()
-                );
+        listenerManager.tell(new DataProcessorInfoMessage(dataProcessor));
     }
 
     private Behavior<Message> onListenerManagerInfoMessage(ListenerManagerInfoMessage message) {
