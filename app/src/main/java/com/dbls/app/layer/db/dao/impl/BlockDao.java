@@ -10,7 +10,11 @@ import java.util.Optional;
 
 public class BlockDao implements AbstractDao<BlockDm> {
 
-    EntityManager entityManager;
+    private EntityManager entityManager;
+
+    public BlockDao(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public Optional<BlockDm> get(long id) {

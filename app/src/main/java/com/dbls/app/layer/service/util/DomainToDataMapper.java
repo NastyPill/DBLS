@@ -1,9 +1,11 @@
 package com.dbls.app.layer.service.util;
 
 import com.dbls.app.layer.db.dao.domain.BlockDm;
+import com.dbls.app.layer.db.dao.domain.LogDm;
 import com.dbls.app.layer.db.dao.domain.TransactionDm;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.websocket.events.Log;
 
 import java.util.stream.Collectors;
 
@@ -52,6 +54,20 @@ public class DomainToDataMapper {
                 .value(transaction.getValueRaw())
                 .v(transaction.getV())
                 .build();
+    }
+
+    public static LogDm mapToLogDm(Log log) {
+        LogDm logDm = LogDm.builder()
+                .data(log.getData())
+                .address(log.getAddress())
+                .blockHash(log.getBlockHash())
+                .blockNumber(log.getBlockNumber())
+                .transactionHash(log.getTransactionHash())
+                .transactionIndex(log.getTransactionIndex())
+                .logIndex(log.getLogIndex())
+                .build();
+        logDm.setTopics(log.getTopics());
+        return logDm;
     }
 
 }

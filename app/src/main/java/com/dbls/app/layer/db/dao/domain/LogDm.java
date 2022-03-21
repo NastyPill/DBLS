@@ -1,6 +1,9 @@
 package com.dbls.app.layer.db.dao.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Arrays;
@@ -10,6 +13,9 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "log")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LogDm {
 
     @Id

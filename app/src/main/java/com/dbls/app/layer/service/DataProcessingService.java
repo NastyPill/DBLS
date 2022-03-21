@@ -13,7 +13,12 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 import org.web3j.protocol.websocket.events.LogNotification;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import static com.dbls.app.layer.service.util.DomainToDataMapper.mapToBlockDm;
+import static com.dbls.app.layer.service.util.DomainToDataMapper.mapToLogDm;
 
 public class DataProcessingService {
 
@@ -22,9 +27,11 @@ public class DataProcessingService {
     private AbstractDao<TransactionDm> transactionDao;
 
     public DataProcessingService() {
-        this.blockDao = new BlockDao();
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        this.blockDao = new BlockDao(entityManager);
         this.logDao = new LogDao();
-        this.transactionDao = new TransactionDao();
+        this.transactionDao = new TransactionDao(entityManager);
     }
 
     public void saveNewBlock(EthBlock.Block block) {
@@ -36,6 +43,6 @@ public class DataProcessingService {
     }
 
     public void saveNewLog(Log log) {
-        throw new UnsupportedOperationException();
+        logDao.save(mapToLogDm(log));
     }
 }

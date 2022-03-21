@@ -19,6 +19,8 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 import org.web3j.protocol.websocket.events.LogNotification;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Queue;
 
 public class DataProcessorActor extends AbstractBehavior<Message> {
@@ -41,6 +43,8 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
         super(context);
         this.dataProcessingService = new DataProcessingService();
         context.getLog().info("DataProcessorActor started");
+        blockHashQueue = new LinkedList<>();
+        logQueue = new LinkedList<>();
     }
 
     @Override
