@@ -3,10 +3,14 @@ package com.dbls.app.layer.db.dao.impl;
 import com.dbls.app.layer.db.dao.AbstractDao;
 import com.dbls.app.layer.db.dao.domain.BlockDm;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.List;
 import java.util.Optional;
 
 public class BlockDao implements AbstractDao<BlockDm> {
+
+    EntityManager entityManager;
 
     @Override
     public Optional<BlockDm> get(long id) {
@@ -20,7 +24,16 @@ public class BlockDao implements AbstractDao<BlockDm> {
 
     @Override
     public void save(BlockDm blockDm) {
-        throw new UnsupportedOperationException();
+        EntityTransaction tx = entityManager.getTransaction();
+        try {
+            tx.begin();
+            entityManager.persist(blockDm);
+            tx.commit();
+        }
+        catch (RuntimeException e) {
+            tx.rollback();
+            throw e;
+        }
     }
 
     @Override

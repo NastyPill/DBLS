@@ -7,10 +7,13 @@ import com.dbls.app.layer.db.dao.domain.TransactionDm;
 import com.dbls.app.layer.db.dao.impl.BlockDao;
 import com.dbls.app.layer.db.dao.impl.LogDao;
 import com.dbls.app.layer.db.dao.impl.TransactionDao;
+import com.dbls.app.layer.service.util.DomainToDataMapper;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 import org.web3j.protocol.websocket.events.LogNotification;
+
+import static com.dbls.app.layer.service.util.DomainToDataMapper.mapToBlockDm;
 
 public class DataProcessingService {
 
@@ -25,7 +28,7 @@ public class DataProcessingService {
     }
 
     public void saveNewBlock(EthBlock.Block block) {
-        throw new UnsupportedOperationException();
+        blockDao.save(mapToBlockDm(block));
     }
 
     public void saveNewTransaction(Transaction transaction) {
