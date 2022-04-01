@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "transaction")
+@Table(name = "transaction", schema = "public")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,14 +18,17 @@ public class TransactionDm {
     private long id;
     private String hash;
     private String nonce;
+    @Column(name = "transactionIndex")
     private String transactionIndex;
     private String from;
     private String to;
     private String value;
+    @Column(name = "gasPrice")
     private String gasPrice;
     private String gas;
     private String input;
     private String creates;
+    @Column(name = "publicKey")
     private String publicKey;
     private String raw;
     private String r;

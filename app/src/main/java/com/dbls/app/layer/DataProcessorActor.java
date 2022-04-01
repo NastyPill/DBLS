@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
-import org.web3j.protocol.websocket.events.LogNotification;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -69,7 +68,6 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onSmartContractLogMessage(SmartContractLogMessage message) {
-        LOG.info("Saving smart contract log");
         Log log = message.getLog().getParams().getResult();
         if(logQueue.size() > 5000) {
             logQueue.poll();

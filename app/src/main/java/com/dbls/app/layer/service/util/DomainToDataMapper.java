@@ -3,10 +3,12 @@ package com.dbls.app.layer.service.util;
 import com.dbls.app.layer.db.dao.domain.BlockDm;
 import com.dbls.app.layer.db.dao.domain.LogDm;
 import com.dbls.app.layer.db.dao.domain.TransactionDm;
+import org.postgresql.util.PGTimestamp;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 
+import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
 public class DomainToDataMapper {
@@ -16,8 +18,8 @@ public class DomainToDataMapper {
                 .author(block.getAuthor())
                 .difficulty(block.getDifficultyRaw())
                 .extraData(block.getExtraData())
-                .gasLimit(block.getGasLimitRaw())
-                .gasUsed(block.getGasUsedRaw())
+                .gasLimit(block.getGasLimit().longValue())
+                .gasUsed(block.getGasUsed().longValue())
                 .hash(block.getHash())
                 .logsBloom(block.getLogsBloom())
                 .miner(block.getMiner())
@@ -27,9 +29,9 @@ public class DomainToDataMapper {
                 .parentHash(block.getParentHash())
                 .receiptsRoot(block.getReceiptsRoot())
                 .sha3Uncles(block.getSha3Uncles())
-                .size(block.getSizeRaw())
+                .size(block.getSize().longValue())
                 .stateRoot(block.getStateRoot())
-                .timestamp(block.getTimestampRaw())
+                .timestamp(new Timestamp(block.getTimestamp().longValue() * 1000))
                 .totalDifficulty(block.getTotalDifficultyRaw())
                 .transactions(block.getTransactions().stream().map(DomainToDataMapper::mapToTransactionDm).collect(Collectors.toList()))
                 .transactionsRoot(block.getTransactionsRoot())

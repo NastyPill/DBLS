@@ -84,6 +84,7 @@ public class ListenerActor extends AbstractBehavior<Message> {
 
     private void handleBlockSubscriberData(Object blockData) {
         if(blockData instanceof EthBlock) {
+            LOG.info("Get new block with number: " + ((EthBlock) blockData).getBlock().getNumber());
             dataProcessor.tell(new NewBlockMessage((EthBlock) blockData));
         } else {
             LOG.warn("Invalid class for incoming block data: " + blockData.getClass());

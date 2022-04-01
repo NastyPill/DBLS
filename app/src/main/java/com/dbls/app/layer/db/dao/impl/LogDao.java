@@ -19,7 +19,7 @@ public class LogDao implements AbstractDao<LogDm> {
 
     @Override
     public void save(LogDm logDm) {
-        throw new UnsupportedOperationException();
+       // throw new UnsupportedOperationException();
     }
 
     @Override
