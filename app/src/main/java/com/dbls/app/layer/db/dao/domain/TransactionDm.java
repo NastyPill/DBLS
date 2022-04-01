@@ -1,8 +1,6 @@
 package com.dbls.app.layer.db.dao.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,24 +9,30 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class TransactionDm {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "transaction_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String hash;
-    private String nonce;
-    @Column(name = "transactionIndex")
-    private String transactionIndex;
+    private long nonce;
+    @Column(name = "transaction_index")
+    private long transactionIndex;
+    @Column(name = "from_")
     private String from;
+    @Column(name = "to_")
     private String to;
-    private String value;
-    @Column(name = "gasPrice")
-    private String gasPrice;
-    private String gas;
+    @Column(name = "value_")
+    private long value;
+    @Column(name = "gas_price")
+    private long gasPrice;
+    private long gas;
+    @Column(name = "input_")
     private String input;
     private String creates;
-    @Column(name = "publicKey")
+    @Column(name = "public_key")
     private String publicKey;
     private String raw;
     private String r;
@@ -36,7 +40,7 @@ public class TransactionDm {
     private long v;
 
     @ManyToOne
-    @JoinColumn(name="number", nullable = false)
+    @JoinColumn(name="block_number")
     private BlockDm block;
 
 }

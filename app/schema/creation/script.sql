@@ -35,13 +35,13 @@ create unique index block_number_uindex
 create table transaction
 (
     hash               text   not null,
-    nonce              text,
-    transaction_index text,
+    nonce              bigint,
+    transaction_index bigint,
     from_             text,
     to_               text,
-    value_              text,
-    gas_price         text,
-    gas                text,
+    value_              bigint,
+    gas_price         bigint,
+    gas                bigint,
     input_              text,
     creates            text,
     public_key        text,
@@ -49,7 +49,7 @@ create table transaction
     r                  text,
     s                  text,
     v                  bigint,
-    id                 bigint not null
+    id                 bigserial not null
         constraint transaction_pk
             primary key,
     block_number       bigint not null
@@ -71,11 +71,12 @@ create table log
 (
     address            text,
     block_hash        text not null,
-    block_number      text,
+    block_number      bigint,
     data               text,
-    log_index         text,
+    topics              text,
+    log_index         bigint,
     transaction_hash  text,
-    transaction_index text,
+    transaction_index bigint,
     id                 bigserial
         constraint log_pk
             primary key

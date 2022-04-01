@@ -19,16 +19,22 @@ import java.util.stream.Collectors;
 public class LogDm {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "log_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String address;
+    @Column(name = "block_hash")
     private String blockHash;
-    private String blockNumber;
+    @Column(name = "block_number")
+    private long blockNumber;
     private String data;
-    private String logIndex;
+    @Column(name = "log_index")
+    private long logIndex;
     private String topics;
+    @Column(name = "transaction_hash")
     private String transactionHash;
-    private String transactionIndex;
+    @Column(name = "transaction_index")
+    private long transactionIndex;
 
     public void setTopics(List<String> topics) {
         StringBuilder result = new StringBuilder();

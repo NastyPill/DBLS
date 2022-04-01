@@ -2,8 +2,8 @@ package com.dbls.app.layer.db.dao.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.postgresql.util.PGTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class BlockDm {
 
     @Id

@@ -3,10 +3,18 @@ package com.dbls.app.layer.db.dao.impl;
 import com.dbls.app.layer.db.dao.AbstractDao;
 import com.dbls.app.layer.db.dao.domain.LogDm;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
 public class LogDao implements AbstractDao<LogDm> {
+
+    private EntityManager entityManager;
+
+    public LogDao(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Override
     public Optional<LogDm> get(long id) {
         throw new UnsupportedOperationException();
@@ -19,7 +27,7 @@ public class LogDao implements AbstractDao<LogDm> {
 
     @Override
     public void save(LogDm logDm) {
-       // throw new UnsupportedOperationException();
+        entityManager.persist(logDm);
     }
 
     @Override

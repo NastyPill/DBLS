@@ -2,6 +2,7 @@ package com.dbls.app.layer.db.dao.impl;
 
 import com.dbls.app.layer.db.dao.AbstractDao;
 import com.dbls.app.layer.db.dao.domain.BlockDm;
+import com.dbls.app.layer.db.dao.domain.TransactionDm;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -32,6 +33,12 @@ public class BlockDao implements AbstractDao<BlockDm> {
         try {
             tx.begin();
             entityManager.persist(blockDm);
+            tx.commit();
+            tx.begin();
+            for (TransactionDm transaction : blockDm.getTransactions()) {
+                transaction.setBlock(blockDm);
+                entityManager.persist(transaction);
+            }
             tx.commit();
         }
         catch (RuntimeException e) {

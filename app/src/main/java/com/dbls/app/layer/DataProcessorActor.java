@@ -29,9 +29,6 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
     private Queue<String> blockHashQueue;
     private Queue<LogIdentifier> logQueue;
 
-    // Only if we want to handle transactions outside of block
-    //private Queue<Transaction> transactionQueue;
-
     private static final Logger LOG = LoggerFactory.getLogger(DataProcessorActor.class);
 
     public static Behavior<Message> create() {
@@ -55,8 +52,8 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
     }
 
     private Behavior<Message> onNewBlockMessage(NewBlockMessage message) {
-        LOG.info("Saving block info");
         EthBlock.Block block = message.getBlock().getBlock();
+        LOG.info("Get block for saving with number: " + block.getNumber());
         if(blockHashQueue.size() > 500) {
             blockHashQueue.poll();
         }

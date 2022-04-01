@@ -28,16 +28,12 @@ public class DataProcessingService {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         this.blockDao = new BlockDao(entityManager);
-        this.logDao = new LogDao();
+        this.logDao = new LogDao(entityManager);
         this.transactionDao = new TransactionDao(entityManager);
     }
 
     public void saveNewBlock(EthBlock.Block block) {
         blockDao.save(mapToBlockDm(block));
-    }
-
-    public void saveNewTransaction(Transaction transaction) {
-        throw new UnsupportedOperationException();
     }
 
     public void saveNewLog(Log log) {

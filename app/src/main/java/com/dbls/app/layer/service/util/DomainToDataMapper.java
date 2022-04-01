@@ -44,16 +44,16 @@ public class DomainToDataMapper {
                 .s(transaction.getS())
                 .creates(transaction.getCreates())
                 .from(transaction.getFrom())
-                .gas(transaction.getGasRaw())
-                .gasPrice(transaction.getGasPriceRaw())
+                .gas(transaction.getGas().longValue())
+                .gasPrice(transaction.getGasPrice().longValue())
                 .hash(transaction.getHash())
-                .transactionIndex(transaction.getTransactionIndexRaw())
+                .transactionIndex(transaction.getTransactionIndex().longValue())
                 .input(transaction.getInput())
                 .r(transaction.getR())
-                .nonce(transaction.getNonceRaw())
+                .nonce(transaction.getNonce().longValue())
                 .publicKey(transaction.getPublicKey())
                 .raw(transaction.getRaw())
-                .value(transaction.getValueRaw())
+                .value(transaction.getValue().longValue())
                 .v(transaction.getV())
                 .build();
     }
@@ -63,10 +63,10 @@ public class DomainToDataMapper {
                 .data(log.getData())
                 .address(log.getAddress())
                 .blockHash(log.getBlockHash())
-                .blockNumber(log.getBlockNumber())
+                .blockNumber(Long.parseLong(log.getBlockNumber().substring(2), 16))
                 .transactionHash(log.getTransactionHash())
-                .transactionIndex(log.getTransactionIndex())
-                .logIndex(log.getLogIndex())
+                .transactionIndex(Long.parseLong(log.getTransactionIndex().substring(2), 16))
+                .logIndex(Long.parseLong(log.getLogIndex().substring(2), 16))
                 .build();
         logDm.setTopics(log.getTopics());
         return logDm;
