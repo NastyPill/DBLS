@@ -8,7 +8,6 @@ import com.dbls.app.layer.db.dao.impl.BlockDao;
 import com.dbls.app.layer.db.dao.impl.LogDao;
 import com.dbls.app.layer.db.dao.impl.TransactionDao;
 import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 
 import javax.persistence.EntityManager;

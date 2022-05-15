@@ -13,7 +13,6 @@ import com.dbls.app.layer.message.*;
 import com.dbls.app.layer.subscriber.BlockchainSubscriber;
 import com.dbls.app.layer.subscriber.impl.BlockSubscriber;
 import com.dbls.app.layer.subscriber.impl.SmartContractEventSubscriber;
-import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;

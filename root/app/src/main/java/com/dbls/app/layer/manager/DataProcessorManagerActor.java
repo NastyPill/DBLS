@@ -1,6 +1,5 @@
 package com.dbls.app.layer.manager;
 
-import akka.actor.TypedActor;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
@@ -9,7 +8,6 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import com.dbls.app.layer.DataProcessorActor;
-import com.dbls.app.layer.ListenerActor;
 import com.dbls.app.layer.message.Message;
 import lombok.Builder;
 import lombok.Value;

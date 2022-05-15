@@ -15,10 +15,8 @@ import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -54,7 +52,7 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
     private Behavior<Message> onNewBlockMessage(NewBlockMessage message) {
         EthBlock.Block block = message.getBlock().getBlock();
         LOG.info("Get block for saving with number: " + block.getNumber());
-        if(blockHashQueue.size() > 500) {
+        if(blockHashQueue.size() > 30) {
             blockHashQueue.poll();
         }
         if(!blockHashQueue.contains(block.getHash())) {

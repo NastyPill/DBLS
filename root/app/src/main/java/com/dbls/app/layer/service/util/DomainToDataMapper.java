@@ -3,7 +3,6 @@ package com.dbls.app.layer.service.util;
 import com.dbls.app.layer.db.dao.domain.BlockDm;
 import com.dbls.app.layer.db.dao.domain.LogDm;
 import com.dbls.app.layer.db.dao.domain.TransactionDm;
-import org.postgresql.util.PGTimestamp;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
