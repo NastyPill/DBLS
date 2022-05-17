@@ -1,6 +1,8 @@
 package com.dbls.client.service.configuration;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +14,12 @@ import java.util.Properties;
 
 @Builder
 @ToString
+@Getter
 public class ClientConfiguration {
 
     private static Logger LOG = LoggerFactory.getLogger(ClientConfiguration.class);
 
-    RabbitMQConfiguration rabbitMQConfiguration;
+    private RabbitMQConfiguration rabbitMQConfiguration;
 
     public static ClientConfiguration readConfiguration(String path) {
         Properties properties = new Properties();
