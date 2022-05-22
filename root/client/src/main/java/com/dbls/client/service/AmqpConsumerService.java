@@ -1,6 +1,5 @@
 package com.dbls.client.service;
 
-import com.dbls.client.model.AmqpBody;
 import com.dbls.client.model.AmqpRequest;
 import com.dbls.client.service.configuration.RabbitMQConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,9 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 public class AmqpConsumerService {
 
@@ -48,5 +46,18 @@ public class AmqpConsumerService {
         LOG.info("getAmqpRequest: smthng was found");
         LOG.info(new String(response.getBody()));
         return objectMapper.readValue(new String(response.getBody()), AmqpRequest.class);
+    }
+
+    public void consume(Consumer<String> consumer) throws IOException {
+        channel.basicConsume(configuration.getConsumableQueue(), true, configuration.getConsumableQueue(),
+                new DefaultConsumer(channel) {
+                    @Override
+                    public void handleDelivery(String consumerTag,
+                                               Envelope envelope,
+                                               AMQP.BasicProperties properties,
+                                               byte[] body) throws IOException {
+                        consumer.accept(new String(body));
+                    }
+                });
     }
 }

@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 public class AmqpRequest {
 
     @NonNull
+    String uuid;
+    @NonNull
     RequestType type;
     @Nullable
     String transactionHash;

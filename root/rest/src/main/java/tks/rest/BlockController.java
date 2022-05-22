@@ -23,8 +23,8 @@ public class BlockController {
     BlockService blockService;
 
     @GetMapping("/api/block/getByHash")
-    public ResponseEntity<BlockNm> getByHash(@RequestParam String hash) {
-        return new ResponseEntity<>(blockService.getBlockByHash(hash), HttpStatus.OK);
+    public ResponseEntity<String> getByHash(@RequestParam String hash) throws InterruptedException {
+        return new ResponseEntity<>(blockService.getBlockByHash(hash).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/block/getByMiner")

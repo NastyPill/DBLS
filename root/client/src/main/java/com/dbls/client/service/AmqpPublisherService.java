@@ -36,7 +36,6 @@ public class AmqpPublisherService {
     }
 
     public void publish(AmqpRequest request) throws IOException {
-        LOG.info(objectMapper.writeValueAsString(request));
-        channel.basicPublish("", configuration.getConsumableQueue(), null, objectMapper.writeValueAsString(request).getBytes());
+        channel.basicPublish("", configuration.getPublishingQueue(), null, objectMapper.writeValueAsString(request).getBytes());
     }
 }
