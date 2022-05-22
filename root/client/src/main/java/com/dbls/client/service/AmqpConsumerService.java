@@ -1,7 +1,9 @@
 package com.dbls.client.service;
 
+import com.dbls.client.model.AmqpBody;
 import com.dbls.client.model.AmqpRequest;
 import com.dbls.client.service.configuration.RabbitMQConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,34 +17,36 @@ public class AmqpConsumerService {
 
     private static Logger LOG = LoggerFactory.getLogger(AmqpConsumerService.class);
 
+    private ObjectMapper objectMapper;
     private RabbitMQConfiguration configuration;
-    private ConnectionFactory connectionFactory;
-
-    private Queue<AmqpRequest> queue;
+    private Channel channel;
 
 
-    public AmqpConsumerService(RabbitMQConfiguration configuration) {
+    public AmqpConsumerService(RabbitMQConfiguration configuration) throws IOException, TimeoutException {
         this.configuration = configuration;
-        queue = new LinkedList<>();
-        connectionFactory = new ConnectionFactory();
+        ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setPort(configuration.getPort());
         connectionFactory.setHost(configuration.getHost());
+        this.channel = initialize(connectionFactory);
+        objectMapper = new ObjectMapper();
+        LOG.info("AmqpConsumerService successfully started");
     }
 
-    public void startConsumption() throws IOException, TimeoutException {
+    private Channel initialize(ConnectionFactory connectionFactory) throws IOException, TimeoutException {
         Connection connection = connectionFactory.newConnection();
         Channel channel = connection.createChannel();
         channel.queueDeclare(configuration.getConsumableQueue(), false, false, false, null);
-        channel.basicConsume(configuration.getConsumableQueue(), false, new DefaultConsumer(channel) {
-            @Override
-            public void handleDelivery(String consumerTag,
-                                       Envelope envelope,
-                                       AMQP.BasicProperties properties,
-                                       byte[] body) throws IOException {
-                LOG.info(new String(body));
-                channel.basicAck(envelope.getDeliveryTag(), false);
-            }
-        });
+        return channel;
     }
 
+    public AmqpRequest getAmqpRequest() throws IOException {
+        LOG.trace("getAmqpRequest");
+        GetResponse response = channel.basicGet(configuration.getConsumableQueue(), true);
+        if(response == null) {
+            return null;
+        }
+        LOG.info("getAmqpRequest: smthng was found");
+        LOG.info(new String(response.getBody()));
+        return objectMapper.readValue(new String(response.getBody()), AmqpRequest.class);
+    }
 }

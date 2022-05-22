@@ -1,13 +1,14 @@
 package com.dbls.client.service.configuration;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.ToString;
 import lombok.Value;
 
 import java.util.Properties;
 
 @Builder
-@Value
+@Data
 public class RabbitMQConfiguration {
 
     String host;

@@ -6,6 +6,8 @@ import com.dbls.app.layer.db.dao.domain.TransactionDm;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
