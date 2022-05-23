@@ -22,23 +22,23 @@ public class LogController {
     LogService logService;
 
     @GetMapping("/api/event/getByBlock")
-    public ResponseEntity<List<LogNm>> getByBlockHash(@RequestParam String hash) {
-        return new ResponseEntity<>(logService.getLogsByBlockHash(hash), HttpStatus.OK);
+    public ResponseEntity<String> getByBlockHash(@RequestParam String hash) throws InterruptedException {
+        return new ResponseEntity<>(logService.getLogsByBlockHash(hash).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/event/getByBlockNumber")
-    public ResponseEntity<List<LogNm>> getByBlockNumber(@RequestParam Long number) {
-        return new ResponseEntity<>(logService.getLogsByBlockNumber(number), HttpStatus.OK);
+    public ResponseEntity<String> getByBlockNumber(@RequestParam Long number) throws InterruptedException {
+        return new ResponseEntity<>(logService.getLogsByBlockNumber(number).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/event/getByTransaction")
-    public ResponseEntity<LogNm> getByTransactionHash(@RequestParam String hash) {
-        return new ResponseEntity<>(logService.getLogsByTransactionHash(hash), HttpStatus.OK);
+    public ResponseEntity<String> getByTransactionHash(@RequestParam String hash) throws InterruptedException {
+        return new ResponseEntity<>(logService.getLogsByTransactionHash(hash).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/event/getByAddress")
-    public ResponseEntity<List<LogNm>> getByAddress(@RequestParam String address) {
-        return new ResponseEntity<>(logService.getLogsByAddress(address), HttpStatus.OK);
+    public ResponseEntity<String> getByAddress(@RequestParam String address) throws InterruptedException {
+        return new ResponseEntity<>(logService.getLogsByAddress(address).getBody(), HttpStatus.OK);
     }
 
 }

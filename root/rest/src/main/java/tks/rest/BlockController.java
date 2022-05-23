@@ -28,23 +28,18 @@ public class BlockController {
     }
 
     @GetMapping("/api/block/getByMiner")
-    public ResponseEntity<List<BlockNm>> getByMiner(@RequestParam String miner) {
-        return new ResponseEntity<>(blockService.getBlockByMiner(miner), HttpStatus.OK);
+    public ResponseEntity<String> getByMiner(@RequestParam String miner) throws InterruptedException {
+        return new ResponseEntity<>(blockService.getBlockByMiner(miner).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/block/getByNumber")
-    public ResponseEntity<BlockNm> getByNumber(@RequestParam Long number) {
-        return new ResponseEntity<>(blockService.getBlockByNumber(number), HttpStatus.OK);
-    }
-
-    @GetMapping("/api/block/getAll")
-    public ResponseEntity<List<BlockNm>> getAll() {
-        return new ResponseEntity<>(blockService.getAll(), HttpStatus.OK);
+    public ResponseEntity<String> getByNumber(@RequestParam Long number) throws InterruptedException {
+        return new ResponseEntity<>(blockService.getBlockByNumber(number).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/block/getByTimeRange")
-    public ResponseEntity<List<BlockNm>> getByTimeRange(@ApiParam(example = "2022-04-01 19:21:36") @RequestParam String from,
-                                                        @ApiParam(example = "2022-04-01 19:21:36") @RequestParam String to) {
-        return new ResponseEntity<>(blockService.getBlockByTimerange(from, to), HttpStatus.OK);
+    public ResponseEntity<String> getByTimeRange(@ApiParam(example = "2022-04-01 19:21:36") @RequestParam String from,
+                                                        @ApiParam(example = "2022-04-01 19:21:36") @RequestParam String to) throws InterruptedException {
+        return new ResponseEntity<>(blockService.getBlockByTimerange(from, to).getBody(), HttpStatus.OK);
     }
 }

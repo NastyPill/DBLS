@@ -23,34 +23,29 @@ public class TransactionController {
     TransactionService transactionService;
 
     @GetMapping("/api/transaction/getByHash")
-    public ResponseEntity<TransactionNm> getByHash(@RequestParam String hash) {
-        return new ResponseEntity<>(transactionService.getTransactionByHash(hash), HttpStatus.OK);
+    public ResponseEntity<String> getByHash(@RequestParam String hash) throws InterruptedException {
+        return new ResponseEntity<>(transactionService.getTransactionByHash(hash).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/transaction/getByBlock")
-    public ResponseEntity<List<TransactionNm>> getByBlock(@RequestParam Long blockNumber) {
-        return new ResponseEntity<>(transactionService.getByBlockNumber(blockNumber), HttpStatus.OK);
+    public ResponseEntity<String> getByBlock(@RequestParam Long blockNumber) throws InterruptedException {
+        return new ResponseEntity<>(transactionService.getByBlockNumber(blockNumber).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/transaction/getByNumberAndBlock")
-    public ResponseEntity<TransactionNm> getByNumber(@RequestParam Long number, @RequestParam Long blockNumber) {
-        return new ResponseEntity<>(transactionService.getByBlockAndNumber(number, blockNumber), HttpStatus.OK);
-    }
-
-    @GetMapping("/api/transaction/getAll")
-    public ResponseEntity<List<TransactionNm>> getAll() {
-        return new ResponseEntity<>(transactionService.getAll(), HttpStatus.OK);
+    public ResponseEntity<String> getByNumber(@RequestParam Long number, @RequestParam Long blockNumber) throws InterruptedException {
+        return new ResponseEntity<>(transactionService.getByBlockAndNumber(number, blockNumber).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/transaction/getByTimeRange")
-    public ResponseEntity<List<TransactionNm>> getByTimeRange(@ApiParam(example = "2022-04-01 19:21:36") @RequestParam String from,
-                                                              @ApiParam(example = "2022-04-01 19:21:36") @RequestParam String to) {
-        return new ResponseEntity<>(transactionService.getTransactionByTimestamp(from, to), HttpStatus.OK);
+    public ResponseEntity<String> getByTimeRange(@ApiParam(example = "2022-04-01 19:21:36") @RequestParam String from,
+                                                              @ApiParam(example = "2022-04-01 19:21:36") @RequestParam String to) throws InterruptedException {
+        return new ResponseEntity<>(transactionService.getTransactionByTimestamp(from, to).getBody(), HttpStatus.OK);
     }
 
     @GetMapping("/api/transaction/getByFrom")
-    public ResponseEntity<List<TransactionNm>> getByFrom(@RequestParam String from) {
-        return new ResponseEntity<>(transactionService.getByFrom(from), HttpStatus.OK);
+    public ResponseEntity<String> getByFrom(@RequestParam String from) throws InterruptedException {
+        return new ResponseEntity<>(transactionService.getByFrom(from).getBody(), HttpStatus.OK);
     }
 
 }

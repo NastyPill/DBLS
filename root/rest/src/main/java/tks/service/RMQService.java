@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -27,7 +28,7 @@ public class RMQService {
 
 
     public RMQService() throws IOException, TimeoutException {
-        this.responses = new HashMap<>();
+        this.responses = new ConcurrentHashMap<>();
         this.objectMapper = new ObjectMapper();
         //todo() read rmq config
         this.consumerService = new AmqpConsumerService(RabbitMQConfiguration.builder()
@@ -54,7 +55,12 @@ public class RMQService {
     }
 
     public AmqpResponse getResponse(String uuid) {
-        return responses.getOrDefault(uuid, null);
+        AmqpResponse amqpResponse = responses.getOrDefault(uuid, null);
+        if (amqpResponse != null) {
+            responses.remove(uuid);
+            return amqpResponse;
+        }
+        return null;
     }
 
     public void publishToQueue(AmqpRequest amqpRequest) {
