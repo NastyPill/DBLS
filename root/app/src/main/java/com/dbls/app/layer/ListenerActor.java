@@ -1,14 +1,11 @@
 package com.dbls.app.layer;
 
-import akka.actor.Cancellable;
-import akka.actor.typed.*;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import com.dbls.app.layer.manager.DataProcessorInfoMessage;
-import com.dbls.app.layer.manager.NewBlockMessage;
-import com.dbls.app.layer.manager.SmartContractLogMessage;
+import akka.actor.*;
+import akka.cluster.singleton.ClusterSingletonProxy;
+import akka.cluster.singleton.ClusterSingletonProxySettings;
+import akka.japi.pf.DeciderBuilder;
+import com.dbls.app.layer.message.NewBlockMessage;
+import com.dbls.app.layer.message.SmartContractLogMessage;
 import com.dbls.app.layer.message.*;
 import com.dbls.app.layer.subscriber.BlockchainSubscriber;
 import com.dbls.app.layer.subscriber.impl.BlockSubscriber;
@@ -17,10 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.websocket.events.LogNotification;
+import scala.concurrent.duration.Duration;
 
 import java.net.ConnectException;
-import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -28,29 +27,27 @@ import java.util.concurrent.TimeoutException;
  * maps blocks/events into objects and sends them to data processing layer
  */
 
-public class ListenerActor extends AbstractBehavior<Message> {
+public class ListenerActor extends AbstractActor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ListenerActor.class);
-    private static final SupervisorStrategy strategy = SupervisorStrategy
-            .restartWithBackoff(Duration.ofMillis(500L), Duration.ofSeconds(30L), 0.1)
-            .withLoggingEnabled(false);
+    private static final SupervisorStrategy strategy = new OneForOneStrategy(
+            -1,
+            Duration.Inf(),
+            DeciderBuilder.matchAny(o -> SupervisorStrategy.restart())
+                    .build());
 
-    private ActorRef<Message> dataProcessor;
+    private ActorRef dataProcessor;
 
     private Cancellable testRequestScheduler;
     private BlockchainSubscriber<EthBlock> blockSubscriber;
     private BlockchainSubscriber<LogNotification> smartContractEventSubscriber;
 
-    public static Behavior<Message> create() {
-        return Behaviors.supervise(Behaviors
-                        .setup(ListenerActor::new))
-                        .onFailure(strategy);
+    public static Props props() {
+        return Props.create(ListenerActor.class);
     }
 
-    public ListenerActor(ActorContext<Message> context) {
-        super(context);
+    public ListenerActor() {
         LOG.info("ListenerActor started");
-        getContext().classicActorContext().parent().tell(new UpFromRestartMessage(getContext().getSelf()), null);
     }
 
     private void initSubscribers() throws ConnectException {
@@ -64,27 +61,41 @@ public class ListenerActor extends AbstractBehavior<Message> {
     }
 
     @Override
-    public Receive<Message> createReceive() {
-        return newReceiveBuilder()
-                .onMessage(DataProcessorInfoMessage.class, this::onDataProcessorInfoMessage)
-                .onMessage(TestAccesibilityMessage.class, this::sendTestMessage)
-                .onSignal(PostStop.class, signal -> cleanUp())
-                .onSignal(PreRestart.class, signal -> cleanUp())
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(TestAccesibilityMessage.class, this::sendTestMessage)
                 .build();
     }
 
-    private Behavior<Message> onDataProcessorInfoMessage(DataProcessorInfoMessage message) throws ConnectException {
-        LOG.info("New dataProcessor ref was accepted");
-        this.dataProcessor = message.getDataProcessor();
+    @Override
+    public void preStart() throws Exception {
+        super.preStart();
         initSubscribers();
         testRequestScheduler = scheduleTestMessages();
-        return this;
+        ActorSystem system = context().system();
+        ClusterSingletonProxySettings proxySettings =
+                ClusterSingletonProxySettings.create(system);
+        this.dataProcessor = system.actorOf(ClusterSingletonProxy.props("/user/dataProcessor", proxySettings), "dataProcessorProxy");
+
     }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+        cleanUp();
+    }
+
+    @Override
+    public void preRestart(Throwable reason, Optional<Object> message) throws Exception {
+        super.preRestart(reason, message);
+        cleanUp();
+    }
+
 
     private void handleBlockSubscriberData(Object blockData) {
         if(blockData instanceof EthBlock) {
             LOG.info("Get new block with number: " + ((EthBlock) blockData).getBlock().getNumber());
-            dataProcessor.tell(new NewBlockMessage((EthBlock) blockData));
+            dataProcessor.tell(new NewBlockMessage((EthBlock) blockData), getSelf());
         } else {
             LOG.warn("Invalid class for incoming block data: " + blockData.getClass());
         }
@@ -92,20 +103,19 @@ public class ListenerActor extends AbstractBehavior<Message> {
 
     private void handleSmartContractEventSubscriberData(Object log) {
         if(log instanceof LogNotification) {
-            dataProcessor.tell(new SmartContractLogMessage((LogNotification) log));
+            dataProcessor.tell(new SmartContractLogMessage((LogNotification) log), getSelf());
         } else {
             LOG.warn("Invalid class for incoming smart contract event data: " + log.getClass());
         }
     }
 
-    private Behavior<Message> sendTestMessage(TestAccesibilityMessage message) throws ExecutionException, InterruptedException, TimeoutException {
+    private void sendTestMessage(TestAccesibilityMessage message) throws ExecutionException, InterruptedException, TimeoutException {
         blockSubscriber.testAccesibility();
-        return this;
     }
 
     private Cancellable scheduleTestMessages() {
-        return getContext().classicActorContext().system().scheduler().scheduleAtFixedRate(Duration.ZERO,
-                Duration.ofSeconds(5L),
+        return getContext().classicActorContext().system().scheduler().scheduleAtFixedRate(Duration.Zero(),
+                Duration.create(5L, TimeUnit.SECONDS),
                 getContext().classicActorContext().self(),
                 new TestAccesibilityMessage(),
                 getContext().classicActorContext().dispatcher(),

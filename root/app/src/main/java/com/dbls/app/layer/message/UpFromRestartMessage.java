@@ -1,6 +1,6 @@
 package com.dbls.app.layer.message;
 
-import akka.actor.typed.ActorRef;
+import akka.actor.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -8,6 +8,6 @@ import lombok.Value;
 @AllArgsConstructor
 public class UpFromRestartMessage implements Message {
 
-    ActorRef<Message> author;
+    ActorRef author;
 
 }

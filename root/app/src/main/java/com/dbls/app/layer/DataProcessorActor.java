@@ -1,12 +1,9 @@
 package com.dbls.app.layer;
 
-import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import com.dbls.app.layer.manager.NewBlockMessage;
-import com.dbls.app.layer.manager.SmartContractLogMessage;
+import akka.actor.AbstractActor;
+import akka.actor.Props;
+import com.dbls.app.layer.message.NewBlockMessage;
+import com.dbls.app.layer.message.SmartContractLogMessage;
 import com.dbls.app.layer.message.Message;
 import com.dbls.app.layer.service.DataProcessingService;
 import lombok.AllArgsConstructor;
@@ -15,12 +12,13 @@ import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.websocket.events.Log;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class DataProcessorActor extends AbstractBehavior<Message> {
+public class DataProcessorActor extends AbstractActor {
 
     private DataProcessingService dataProcessingService;
 
@@ -29,42 +27,56 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataProcessorActor.class);
 
-    public static Behavior<Message> create() {
-        return Behaviors.setup(DataProcessorActor::new);
+    public static Props props() {
+        return Props.create(DataProcessorActor.class);
     }
 
-    public DataProcessorActor(ActorContext<Message> context) {
-        super(context);
+    public DataProcessorActor() {
         this.dataProcessingService = new DataProcessingService();
-        context.getLog().info("DataProcessorActor started");
         blockHashQueue = new LinkedList<>();
         logQueue = new LinkedList<>();
     }
 
     @Override
-    public Receive<Message> createReceive() {
-        return newReceiveBuilder()
-                .onMessage(SmartContractLogMessage.class, this::onSmartContractLogMessage)
-                .onMessage(NewBlockMessage.class, this::onNewBlockMessage)
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(SmartContractLogMessage.class, this::onSmartContractLogMessage)
+                .match(NewBlockMessage.class, this::onNewBlockMessage)
                 .build();
     }
 
-    private Behavior<Message> onNewBlockMessage(NewBlockMessage message) {
+    private void onNewBlockMessage(NewBlockMessage message) {
         EthBlock.Block block = message.getBlock().getBlock();
         LOG.info("Get block for saving with number: " + block.getNumber());
-        if(blockHashQueue.size() > 30) {
+        if(blockHashQueue.size() > 100) {
             blockHashQueue.poll();
         }
         if(!blockHashQueue.contains(block.getHash())) {
             blockHashQueue.add(block.getHash());
+            log(block);
             dataProcessingService.saveNewBlock(block);
         }
-        return this;
     }
 
-    private Behavior<Message> onSmartContractLogMessage(SmartContractLogMessage message) {
+    private void log(EthBlock.Block block) {
+        LOG.warn("============================");
+        LOG.warn("============================");
+        LOG.warn("============================");
+        //TODO() remove logic to service + add transaction validation
+        LOG.warn(block.getHash());
+        LOG.warn(block.getNumber().toString());
+        for (EthBlock.TransactionResult<Transaction> transactionResult: block.getTransactions()) {
+            Transaction transaction = transactionResult.get();
+            LOG.warn(transaction.getHash());
+        }
+        LOG.warn("============================");
+        LOG.warn("============================");
+        LOG.warn("============================");
+    }
+
+    private void onSmartContractLogMessage(SmartContractLogMessage message) {
         Log log = message.getLog().getParams().getResult();
-        if(logQueue.size() > 5000) {
+        if(logQueue.size() > 20000) {
             logQueue.poll();
         }
         LogIdentifier logIdentifier = new LogIdentifier(log.getBlockHash(), log.getTransactionHash());
@@ -72,12 +84,10 @@ public class DataProcessorActor extends AbstractBehavior<Message> {
             logQueue.add(logIdentifier);
             dataProcessingService.saveNewLog(log);
         }
-        return this;
     }
 
-    private Behavior<Message> handleUnknown(Message message) {
+    private void handleUnknown(Message message) {
         LOG.info("Received message: " + message.toString());
-        return this;
     }
 
     @Value
