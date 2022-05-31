@@ -53,25 +53,25 @@ public class DataProcessorActor extends AbstractActor {
         }
         if(!blockHashQueue.contains(block.getHash())) {
             blockHashQueue.add(block.getHash());
-            log(block);
+            //log(block);
             dataProcessingService.saveNewBlock(block);
         }
     }
 
     private void log(EthBlock.Block block) {
-        LOG.warn("============================");
-        LOG.warn("============================");
-        LOG.warn("============================");
+        LOG.trace("============================");
+        LOG.trace("============================");
+        LOG.trace("============================");
         //TODO() remove logic to service + add transaction validation
-        LOG.warn(block.getHash());
-        LOG.warn(block.getNumber().toString());
+        LOG.trace(block.getHash());
+        LOG.trace(block.getNumber().toString());
         for (EthBlock.TransactionResult<Transaction> transactionResult: block.getTransactions()) {
             Transaction transaction = transactionResult.get();
-            LOG.warn(transaction.getHash());
+            LOG.trace(transaction.getHash());
         }
-        LOG.warn("============================");
-        LOG.warn("============================");
-        LOG.warn("============================");
+        LOG.trace("============================");
+        LOG.trace("============================");
+        LOG.trace("============================");
     }
 
     private void onSmartContractLogMessage(SmartContractLogMessage message) {

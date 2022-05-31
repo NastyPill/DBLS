@@ -18,7 +18,7 @@ public abstract class WebSocketBlockchainSubscriber<T> implements BlockchainSubs
 
     public WebSocketBlockchainSubscriber() throws ConnectException {
         if(web3 == null) {
-            this.webSocketService = new WebSocketService("ws://localhost:9999", true);
+            this.webSocketService = new WebSocketService("ws://192.168.0.6:9999", true);
             webSocketService.connect();
             this.web3 = Web3j.build(webSocketService);
         }

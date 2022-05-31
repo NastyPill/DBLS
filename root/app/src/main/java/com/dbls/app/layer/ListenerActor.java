@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.websocket.events.LogNotification;
+import scala.Option;
 import scala.concurrent.duration.Duration;
 
 import java.net.ConnectException;
@@ -30,23 +31,18 @@ import java.util.concurrent.TimeoutException;
 public class ListenerActor extends AbstractActor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ListenerActor.class);
-    private static final SupervisorStrategy strategy = new OneForOneStrategy(
-            -1,
-            Duration.Inf(),
-            DeciderBuilder.matchAny(o -> SupervisorStrategy.restart())
-                    .build());
-
     private ActorRef dataProcessor;
 
     private Cancellable testRequestScheduler;
     private BlockchainSubscriber<EthBlock> blockSubscriber;
     private BlockchainSubscriber<LogNotification> smartContractEventSubscriber;
 
-    public static Props props() {
-        return Props.create(ListenerActor.class);
+    public static Props props(ActorRef dataProcessor) {
+        return Props.create(ListenerActor.class, dataProcessor);
     }
 
-    public ListenerActor() {
+    public ListenerActor(ActorRef dataProcessor) {
+        this.dataProcessor = dataProcessor;
         LOG.info("ListenerActor started");
     }
 
@@ -73,10 +69,13 @@ public class ListenerActor extends AbstractActor {
         initSubscribers();
         testRequestScheduler = scheduleTestMessages();
         ActorSystem system = context().system();
-        ClusterSingletonProxySettings proxySettings =
-                ClusterSingletonProxySettings.create(system);
-        this.dataProcessor = system.actorOf(ClusterSingletonProxy.props("/user/dataProcessor", proxySettings), "dataProcessorProxy");
+    }
 
+    @Override
+    public void aroundPreRestart(Throwable reason, Option<Object> message) {
+        super.aroundPreRestart(reason, message);
+
+        cleanUp();
     }
 
     @Override
