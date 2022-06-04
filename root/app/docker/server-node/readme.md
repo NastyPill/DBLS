@@ -1,0 +1,1 @@
+- `docker run --net="host" -e "PORT=2555" -e "ROLE=dataProc/listener" listener or dataProc`
