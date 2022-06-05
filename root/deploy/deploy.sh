@@ -1,13 +1,12 @@
 #!/bin/bash
 
-cd ../app/docker/server-node
+cd docker/server-node
 docker build -t server .
-
-cd ../../../client/docker/client-node
+cd ../client-node
 docker build -t client .
 cd ../rmq
 docker build -t rmq .
-cd ../../../rest/docker/rest
+cd ../rest
 docker build -t rest .
 
 docker run -d --net="host" --name="rmq" rmq
