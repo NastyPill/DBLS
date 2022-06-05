@@ -18,6 +18,24 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>local-repo</id>
+            <name>Local Repository</name>
+            <url>file:///home/valera/.m2/repository</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>local-repo</id>
+            <name>Local Repository</name>
+            <url>file:///home/valera/.m2/repository</url>
+            <layout>default</layout>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

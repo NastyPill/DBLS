@@ -1,7 +1,7 @@
 FROM rabbitmq:management
 
 ENV RABBITMQ_USER user
-ENV RABBITMQ_PASSWORD password
+ENV RABBITMQ_PASSWORD pass
 
 ADD init.sh /init.sh
 ADD definitions.json /etc/rabbitmq

@@ -2,7 +2,7 @@
   "users": [
     {
       "name": "user",
-      "password_hash": "password",
+      "password": "pass",
       "hashing_algorithm": "rabbit_password_hashing_sha256",
       "tags": "administrator"
     }
@@ -14,5 +14,14 @@
   "queues":[
     {"name":"test.queue.in","vhost":"/","durable":false,"auto_delete":false,"arguments":{}},
     {"name":"test.queue.out","vhost":"/","durable":false,"auto_delete":false,"arguments":{}}
+  ],
+  "permissions": [
+    {
+      "user": "user",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
   ]
 }
