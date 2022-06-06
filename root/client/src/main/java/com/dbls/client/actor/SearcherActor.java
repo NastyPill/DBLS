@@ -2,7 +2,10 @@ package com.dbls.client.actor;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.cluster.singleton.ClusterSingletonProxy;
+import akka.cluster.singleton.ClusterSingletonProxySettings;
 import com.dbls.client.message.NewWorkRequest;
 import com.dbls.client.message.NewWorkResponse;
 import com.dbls.client.model.AmqpRequest;
@@ -20,14 +23,17 @@ public class SearcherActor extends AbstractActor {
     private SearcherService searcherService;
     private ActorRef balancer;
 
-    public static Props props(ActorRef actorRef) {
-        return Props.create(SearcherActor.class, actorRef);
+    public static Props props() {
+        return Props.create(SearcherActor.class);
     }
 
-    public SearcherActor(ActorRef balancer) {
+    public SearcherActor() {
         super();
         this.searcherService = new SearcherService();
-        this.balancer = balancer;
+        ActorSystem system = getContext().system();
+        ClusterSingletonProxySettings proxySettings =
+                ClusterSingletonProxySettings.create(system);
+        this.balancer = system.actorOf(ClusterSingletonProxy.props("/user/balancer", proxySettings), "balancerProxy");
         LOG.info("Searcher was started");
     }
 

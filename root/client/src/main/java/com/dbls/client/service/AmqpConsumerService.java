@@ -25,6 +25,8 @@ public class AmqpConsumerService {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setPort(configuration.getPort());
         connectionFactory.setHost(configuration.getHost());
+        connectionFactory.setUsername("user");
+        connectionFactory.setPassword("pass");
         this.channel = initialize(connectionFactory);
         objectMapper = new ObjectMapper();
         LOG.info("AmqpConsumerService successfully started");

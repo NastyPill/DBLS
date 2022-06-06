@@ -1,48 +1,41 @@
 package com.dbls.app.layer.supervisor;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import com.dbls.app.layer.manager.DataProcessorManagerActor;
-import com.dbls.app.layer.manager.ListenerManagerActor;
-import com.dbls.app.layer.message.Message;
+import akka.actor.*;
+import akka.cluster.singleton.ClusterSingletonProxy;
+import akka.cluster.singleton.ClusterSingletonProxySettings;
+import akka.japi.pf.DeciderBuilder;
+import com.dbls.app.layer.ListenerActor;
+import scala.concurrent.duration.Duration;
 
-public class DBLSSupervisor extends AbstractBehavior<Void> {
+import java.util.concurrent.TimeUnit;
 
-    private ActorRef<Message> listenerManagerActor;
-    private ActorRef<Message> dataProcessorManagerActor;
+public class DBLSSupervisor extends AbstractActor {
 
-    public static Behavior<Void> create() {
-        return Behaviors.setup(DBLSSupervisor::new);
+    private static final SupervisorStrategy strategy = new OneForOneStrategy(
+            -1,
+            Duration.Inf(),
+            DeciderBuilder.match(Throwable.class, a -> SupervisorStrategy.restart())
+                    .build());
+
+    public static Props props() {
+        return Props.create(DBLSSupervisor.class);
     }
-
-    private DBLSSupervisor(ActorContext<Void> context) {
-        super(context);
-        context.getLog().info("DBLS started");
-
-        listenerManagerActor = context.spawn(ListenerManagerActor.create(), "listener-manager");
-        dataProcessorManagerActor = context.spawn(DataProcessorManagerActor.create(), "dataProcessor-manager");
-
-        dataProcessorManagerActor
-                .tell(
-                        DataProcessorManagerActor.ListenerManagerInfoMessage
-                                .builder()
-                                .listenerManager(listenerManagerActor)
-                                .build()
-                );
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder().build();
     }
 
     @Override
-    public Receive<Void> createReceive() {
-        return newReceiveBuilder().onSignal(PostStop.class, signal -> onPostStop()).build();
+    public void preStart() throws Exception {
+        ActorSystem system = getContext().getSystem();
+        ClusterSingletonProxySettings proxySettings =
+                ClusterSingletonProxySettings.create(system);
+        ActorRef dataProcessor = system.actorOf(ClusterSingletonProxy.props("/user/dataProcessor", proxySettings), "dataProcessorProxy");
+        getContext().actorOf(ListenerActor.props(dataProcessor));
     }
 
-    private DBLSSupervisor onPostStop() {
-        getContext().getLog().info("DBLS stopped");
-        return this;
+    @Override
+    public SupervisorStrategy supervisorStrategy() {
+        return strategy;
     }
 }

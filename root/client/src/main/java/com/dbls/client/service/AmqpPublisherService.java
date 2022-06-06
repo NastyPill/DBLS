@@ -26,6 +26,8 @@ public class AmqpPublisherService {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setPort(configuration.getPort());
         connectionFactory.setHost(configuration.getHost());
+        connectionFactory.setUsername("user");
+        connectionFactory.setPassword("pass");
         channel = connectionFactory.newConnection().createChannel();
         channel.queueDeclare(configuration.getPublishingQueue(), false, false, false, null);
         objectMapper = new ObjectMapper();

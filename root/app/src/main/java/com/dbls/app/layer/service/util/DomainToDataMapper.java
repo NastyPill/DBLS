@@ -52,7 +52,8 @@ public class DomainToDataMapper {
                 .nonce(transaction.getNonce().longValue())
                 .publicKey(transaction.getPublicKey())
                 .raw(transaction.getRaw())
-                .value(transaction.getValue().longValue())
+                //todo() make new value format adaptation
+                .value(0)
                 .v(transaction.getV())
                 .build();
     }
